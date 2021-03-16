@@ -885,6 +885,26 @@ router.post('/home/module/:_id/generatePDF/pdfcards', ensureAuthenticated, async
 
 });
 
+//Playbook page that serves as an explanation page
+router.get('/playbook', ensureAuthenticated, async (req, res) => {
+    res.render('playbook', { name: req.user.name});
+});
+
+//Playbook page that serves as an explanation page
+router.get('/annex_EETL', ensureAuthenticated, async (req, res) => {
+    res.render('annexEETL', { name: req.user.name});
+});
+
+//Playbook page that serves as an explanation page
+router.get('/annex_glossary', ensureAuthenticated, async (req, res) => {
+    res.render('annexGlossary', { name: req.user.name});
+});
+
+//Playbook page that serves as an explanation page
+router.get('/annex_micro_strat', ensureAuthenticated, async (req, res) => {
+    res.render('annexMS', { name: req.user.name});
+});
+
 //Experience page that displays all resources
 router.get('/experience', ensureAuthenticated, async (req, res) => {
     const AllResource = await Resource.find({ });
