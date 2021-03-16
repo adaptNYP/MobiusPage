@@ -9,6 +9,10 @@ const $ = require('jquery');
 const bodyParser = require('body-parser');
 const app = express();
 
+//
+const publicDir = require('path').join(__dirname,'/public'); 
+app.use(express.static(publicDir)); 
+
 // Passport config
 require('./config/passport')(passport);
 
