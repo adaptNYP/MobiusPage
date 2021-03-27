@@ -11,14 +11,19 @@
 <body>
 
     <nav class="navbar navbar-dark bg-dark" >
-        <span class="navbar-brand mb-0 h1"><a class="navbar-brand">Mobius Application</a></span>
+        <span class="navbar-brand mb-0 h1"><a class="navbar-brand" href="/exLandingPage">Mobius Application</a></span>
 
-        <ul class="nav navbar-nav navbar-right">
+        <ul class="nav navbar-nav navbar-right">          
             <% if(typeof name != 'undefined'){ %>
-                <li style="color: white;">Signed In As <%= name %> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="/users/logout">Logout</a>
+                <li style="color: white;">
+                    Signed In As <%= name %> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  
+                    <% if(LoginUser.admin == true){ %>
+                    <a href="/users/register_admin" style="color: white;">Register Admin</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <% }; %>
+                    <a href="/users/logout">Logout</a>
                 </li>
 
-            <% } %>
+            <% }; %>
         </ul>
 
       </nav>

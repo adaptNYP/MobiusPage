@@ -19,7 +19,7 @@ const puppeteer = require('puppeteer');
 router.get('/', (req, res) => res.render('welcome'));
 // Dashboard
 router.get('/dashboard', ensureAuthenticated, (req, res) =>
-    res.render('dashboard', {
+    res.render('dashboard', {LoginUser: req.user,
         name: req.user.name
     }));
 
@@ -28,6 +28,7 @@ router.get('/home/:_id/new-lessonplan', ensureAuthenticated, async (req, res) =>
     var idOfModuleForLessonPlan = req.params._id;
     const theModuleToCreateLessonPlan = await Subject.findById(idOfModuleForLessonPlan);
     res.render('newlessonplan', {
+        LoginUser: req.user,
         name: req.user.name,
         email: req.user.email,
         theModuleToDisplay: theModuleToCreateLessonPlan
@@ -92,7 +93,7 @@ router.get('/home/module/:_id', ensureAuthenticated, async (req, res) => {
     const lessonplanToShow = await LessonPlan.findById(idOfLessonPlan);
     const lessonPlanModule = await Subject.find({ "moduleCode": lessonplanToShow.theModuleCode });
 
-    res.render('showlessonplan', { name: req.user.name, email: req.user.email, theLessonPlanToDisplay: lessonplanToShow, moduleOfLessonPlan: lessonPlanModule });
+    res.render('showlessonplan', { LoginUser: req.user, name: req.user.name, email: req.user.email, theLessonPlanToDisplay: lessonplanToShow, moduleOfLessonPlan: lessonPlanModule });
 });
 
 //At read lesson plan page
@@ -302,13 +303,14 @@ router.get('/home', ensureAuthenticated, async (req, res) => {
         const regex = new RegExp(escapeRegex(req.query.search), 'gi');
         const allModules = await Subject.find({ $or: [{ moduleCode: regex }, { moduleName: regex }] });
         res.render('main', {
-            name: req.user.name,
+            LoginUser: req.user, name: req.user.name,
             records: allModules
         });
     } else {
         const allModules = await Subject.find().sort({ date: 'desc' });
 
         res.render('main', {
+            LoginUser: req.user, 
             name: req.user.name,
             records: allModules
         });
@@ -460,14 +462,14 @@ router.get('/home/:_id', ensureAuthenticated, async (req, res) => {
         // // const lessonPlansInThatModule = await LessonPlan.find({ "theModuleCode": thatSpecificModule.moduleCode });
         // const regex = new RegExp(escapeRegex(req.query.search), 'gi');
         // const lessonPlansInThatModule = await LessonPlan.find({$or:[{theModuleCode: thatSpecificModule.moduleCode},{nameOfLessonPlan: regex}]});
-        res.render('showModule', { name: req.user.name, thatModule: thatSpecificModule, thatLessonPlan: lessonPlansInThatModule });
+        res.render('showModule', { LoginUser: req.user, name: req.user.name, thatModule: thatSpecificModule, thatLessonPlan: lessonPlansInThatModule });
     } else {
         // res.send(req.params._id);
         var idToFind = req.params._id;
         const thatSpecificModule = await Subject.findById(idToFind);
         // console.log(thatSpecificModule);
         const lessonPlansInThatModule = await LessonPlan.find({ "theModuleCode": thatSpecificModule.moduleCode });
-        res.render('showModule', { name: req.user.name, thatModule: thatSpecificModule, thatLessonPlan: lessonPlansInThatModule });
+        res.render('showModule', { LoginUser: req.user, name: req.user.name, thatModule: thatSpecificModule, thatLessonPlan: lessonPlansInThatModule });
     }
 });
 
@@ -555,7 +557,7 @@ router.get('/home/module/:_id/showcards', ensureAuthenticated, async (req, res) 
     const lessonplanToShow = await LessonPlan.findById(idOfLessonPlan);
     const lessonPlanModule = await Subject.find({ "moduleCode": lessonplanToShow.theModuleCode });
 
-    res.render('showcards', { name: req.user.name, email: req.user.email, theLessonPlanToDisplay: lessonplanToShow, moduleOfLessonPlan: lessonPlanModule });
+    res.render('showcards', { LoginUser: req.user, name: req.user.name, email: req.user.email, theLessonPlanToDisplay: lessonplanToShow, moduleOfLessonPlan: lessonPlanModule });
 });
 
 //At lesson plan's PDF generation page
@@ -564,7 +566,7 @@ router.get('/home/module/:_id/generatePDF', ensureAuthenticated, async (req, res
     const lessonplanToShow = await LessonPlan.findById(idOfLessonPlan);
     const lessonPlanModule = await Subject.find({ "moduleCode": lessonplanToShow.theModuleCode });
 
-    res.render('generatePDF', { name: req.user.name, email: req.user.email, theLessonPlanToDisplay: lessonplanToShow, moduleOfLessonPlan: lessonPlanModule });
+    res.render('generatePDF', { LoginUser: req.user, name: req.user.name, email: req.user.email, theLessonPlanToDisplay: lessonplanToShow, moduleOfLessonPlan: lessonPlanModule });
 });
 
 //At lesson plan's PDF generation page
@@ -887,34 +889,34 @@ router.post('/home/module/:_id/generatePDF/pdfcards', ensureAuthenticated, async
 
 //Playbook page that serves as an explanation page
 router.get('/playbook', ensureAuthenticated, async (req, res) => {
-    res.render('playbook', { name: req.user.name});
+    res.render('playbook', {LoginUser: req.user, name: req.user.name});
 });
 
 //Playbook page that serves as an explanation page
 router.get('/annex_EETL', ensureAuthenticated, async (req, res) => {
-    res.render('annexEETL', { name: req.user.name});
+    res.render('annexEETL', { LoginUser: req.user, name: req.user.name});
 });
 
 //Playbook page that serves as an explanation page
 router.get('/annex_glossary', ensureAuthenticated, async (req, res) => {
-    res.render('annexGlossary', { name: req.user.name});
+    res.render('annexGlossary', { LoginUser: req.user, name: req.user.name});
 });
 
 //Playbook page that serves as an explanation page
 router.get('/annex_micro_strat', ensureAuthenticated, async (req, res) => {
-    res.render('annexMS', { name: req.user.name});
+    res.render('annexMS', { LoginUser: req.user, name: req.user.name});
 });
 
 //Experience page that displays all resources
 router.get('/experience', ensureAuthenticated, async (req, res) => {
     const AllResource = await Resource.find({ });
 
-    res.render('experience', { name: req.user.name, TheResources: AllResource });
+    res.render('experience', { LoginUser: req.user, name: req.user.name, TheResources: AllResource });
 });
 
 //Create new resource page
 router.get('/experience/createNewResource', ensureAuthenticated, async (req, res) => {
-    res.render('createNewResource', { name: req.user.name } );
+    res.render('createNewResource', { LoginUser: req.user, name: req.user.name } );
 });
 
 //Create new resource page
@@ -965,21 +967,21 @@ router.get('/experience/:_id/delete', ensureAuthenticated, (req, res) => {
 router.get('/experience/readResource/:_id', ensureAuthenticated, async (req, res) => {
     const thatSpecificResource = await Resource.findById(req.params._id);
 
-    res.render('readResource', { name: req.user.name, email: req.user.email, TheSelectedResource: thatSpecificResource } );
+    res.render('readResource', { LoginUser: req.user, name: req.user.name, email: req.user.email, TheSelectedResource: thatSpecificResource } );
 });
 
 //Read resource LXD Cards
 router.get('/experience/readResource/:_id/readResourceCards', ensureAuthenticated, async (req, res) => {
     const thatSpecificResource = await Resource.findById(req.params._id);
 
-    res.render('readResourceCards', { name: req.user.name, email: req.user.email, TheSelectedResource: thatSpecificResource } );
+    res.render('readResourceCards', { LoginUser: req.user, name: req.user.name, email: req.user.email, TheSelectedResource: thatSpecificResource } );
 });
 
 //Edit resource LXD Cards & LXD Timeline page
 router.get('/experience/readResource/:_id/edit', ensureAuthenticated, async (req, res) => {
     const thatSpecificResource = await Resource.findById(req.params._id);
 
-    res.render('editResource', { name: req.user.name, email: req.user.email, TheSelectedResource: thatSpecificResource } );
+    res.render('editResource', { LoginUser: req.user, name: req.user.name, email: req.user.email, TheSelectedResource: thatSpecificResource } );
 });
 
 //Edit resource LXD Cards & LXD Timeline page
@@ -1052,7 +1054,7 @@ router.post('/experience/readResource/:_id/edit', ensureAuthenticated, async (re
 router.get('/experience/readResource/:_id/generateResourcePDF', ensureAuthenticated, async (req, res) => {
     const thatSpecificResource = await Resource.findById(req.params._id);
 
-    res.render('generateResourcePDF', { name: req.user.name, email: req.user.email, TheSelectedResource: thatSpecificResource } );
+    res.render('generateResourcePDF', { LoginUser: req.user, name: req.user.name, email: req.user.email, TheSelectedResource: thatSpecificResource } );
 });
 
 //At resource's PDF generation page
@@ -1359,7 +1361,7 @@ router.post('/experience/readResource/:_id/generateResourcePDF/pdfcards', ensure
 
 //"experience" link page
 router.get('/exLandingPage', ensureAuthenticated, async (req, res) => {
-    res.render('exLandingPage', { name: req.user.name, email: req.user.email } );
+    res.render('exLandingPage', { LoginUser: req.user, name: req.user.name, email: req.user.email} );
 });
 
 module.exports = router;

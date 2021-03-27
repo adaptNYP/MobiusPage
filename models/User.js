@@ -15,6 +15,14 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    school: {
+        type: String,
+        required: true
+    },
+    admin: {
+        type: Boolean,
+        required: true
+    },
     date: {
         type: Date,
         default: Date.now
