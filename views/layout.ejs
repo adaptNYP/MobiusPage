@@ -10,15 +10,20 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-dark bg-dark">
-        <span class="navbar-brand mb-0 h1"><a class="navbar-brand">Mobius Application</a></span>
+    <nav class="navbar navbar-dark bg-dark" >
+        <span class="navbar-brand mb-0 h1"><a class="navbar-brand" href="/exLandingPage">Mobius Page</a></span>
 
-        <ul class="nav navbar-nav navbar-right">
+        <ul class="nav navbar-nav navbar-right">          
             <% if(typeof name != 'undefined'){ %>
-                <li style="color: white;">Signed In As <%= name %> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="/users/logout">Logout</a>
+                <li style="color: white;">
+                    Signed In As <%= name %> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  
+                    <% if(LoginUser.admin == true){ %>
+                    <a href="/users/register_admin" style="color: white;">Register Users</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <% }; %>
+                    <a href="/users/logout">Logout</a>
                 </li>
 
-            <% } %>
+            <% }; %>
         </ul>
 
       </nav>
@@ -30,7 +35,7 @@
 <br/>
 <br/>
 <div style="height: 50px; width: 100%; background-color: white; color: black; text-align: center;">
-    Copyright &copy; Mobius Application. All rights reserved.
+    Copyright &copy; Mobius Page. All rights reserved.
 </div>
 
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
