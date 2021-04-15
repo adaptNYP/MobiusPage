@@ -21,44 +21,99 @@ router.get('/login', (req, res) => res.render('login'));
 // First Time Login Page
 router.get('/first_login', ensureAuthenticated, (req, res) => {
 	bcrypt.compare(DEFAULT_PASSWORD, req.user.password, (err, isMatch) => {
-		if(err) throw err;
+		if (err) throw err;
 
-		if(isMatch) {
-			res.render('first_login', { LoginUser: req.user, name: req.user.name});
+		if (isMatch) {
+			res.render('first_login', { LoginUser: req.user, name: req.user.name });
 		} else {
 			res.redirect('/exLandingPage');
 		}
 	});
-	
+
 });
 
-router.post('/first_login', (req,res) => {
-		const {password, password2 } = req.body;
-		let errors = [];
-	
-		// Check required fields
-		if(!password || !password2) {
-			errors.push({ msg: 'Please fill in all fields' });
-		}
-	
-		// Check passwords match
-		if(password !== password2) {
-				errors.push({ msg: 'Passwords do not match' });
-		}
-	
-		// Check pass length
-		if(password.length < 8) {
-				errors.push({ msg: 'Password should be at least 8 characters' });
-		}
-	
-		if(errors.length > 0) {
-			res.render('register', {
-					errors,
-					password,
-					password2
+router.post('/first_login', ensureAuthenticated, (req, res) => {
+	async.waterfall([
+		function (done) {
+			//check if email given is registered with mobius
+			User.findOne({ email: req.user.email }, function (err, user) {
+				if (!user) {
+					req.flash('error', 'No account with that email address exists.');
+					return res.redirect('/users/login');
+				}
+				const { password, password2 } = req.body;
+				let errors = [];
+
+				// Check required fields
+				if (!password || !password2) {
+					errors.push({ msg: 'Please fill in all fields' });
+				}
+
+				// Check passwords match
+				if (password !== password2) {
+					errors.push({ msg: 'Passwords do not match' });
+				}
+
+				// Check pass length
+				if (password.length < 8) {
+					errors.push({ msg: 'Password should be at least 8 characters' });
+				}
+
+				if (errors.length > 0) {
+					res.render('first_login', {
+						errors,
+						LoginUser: req.user,
+						name: req.user.name,
+						password,
+						password2
+					});
+				}
+				else {
+					bcrypt.genSalt(10, (err, salt) =>
+						bcrypt.hash(password, salt, (err, hash) => {
+							if (err) throw err;
+							// Set password to hashed
+							user.password = hash;
+							// Save user
+							user.save(function (err) {
+								req.logIn(user, function (err) {
+									done(err, user);
+								});
+							});
+						}))
+				}
+			});
+		},
+
+		//Upon success in changing password
+		//An email will be sent to use as a receipt
+		function (user, done) {
+			console.log(user.email);
+			var smtpTransport = nodemailer.createTransport({
+				service: 'gmail',
+				auth: {
+					user: 'mobiuspage@gmail.com',
+					pass: 'Mobiuspage123!'
+				}
+			});
+			var mailOptions = {
+				to: user.email,
+				from: 'servertestNYP@gmail.com',
+				subject: 'Mobius Application Password Reset',
+				text: 'Hello,\n\n' +
+					'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
+			};
+			smtpTransport.sendMail(mailOptions, function (err) {
+				console.log('Mail sent!');
+				req.flash('success_msg', 'Success! Your password has been changed.');
+				done(err);
 			});
 		}
+	], function (err) {
+		res.redirect('/exLandingPage');
 	});
+
+});
 // Admin Register Page
 router.get('/register_admin', ensureAuthenticated, (req, res) => {
 	if (req.user.admin == true) {
@@ -77,10 +132,10 @@ router.post('/register_admin', ensureAuthenticated, async (req, res) => {
 		is_admin = true;
 	}
 	let errors = [];
-	var school_final = req.user.school;
+	var school_final = req.user.school.toUpperCase();
 	var email_final = email.trim().toLowerCase();
 	if (req.user.email == "mobiusnyp@gmail.com") {
-		var school_final = school_admin
+		var school_final = school_admin.toUpperCase();
 		if (school_admin == null) {
 			errors.push({ msg: 'Please fill in the user\'s school' });
 		}
@@ -101,7 +156,6 @@ router.post('/register_admin', ensureAuthenticated, async (req, res) => {
 		});
 		return
 	}
-
 	try {
 		user = await User.findOne({ email: email_final })
 		if (user) {
@@ -130,7 +184,7 @@ router.post('/register_admin', ensureAuthenticated, async (req, res) => {
 	} catch (err) {
 		console.log("[Error]", err)
 	}
-})
+});
 
 // // Register Handle
 // router.post('/register', (req,res) => {
@@ -305,7 +359,6 @@ router.post('/reset/:token', function (req, res) {
 				const { password, confirm } = req.body;
 				let errors = [];
 
-
 				// Check required fields
 				if (!confirm || !password) {
 					req.flash("error", "Please fill in all fields");
@@ -326,8 +379,8 @@ router.post('/reset/:token', function (req, res) {
 					// errors.push({ msg: 'Passwords do not match.' });
 					req.flash("error", "Passwords do not match.");
 					return res.redirect('back');
-
 				}
+
 				else {
 					bcrypt.genSalt(10, (err, salt) =>
 						bcrypt.hash(req.body.password, salt, (err, hash) => {
@@ -353,7 +406,7 @@ router.post('/reset/:token', function (req, res) {
 				service: 'gmail',
 				auth: {
 					user: 'servertestNYP@gmail.com',
-					pass: 'Servertest123!'
+					pass: 'Mobiuspage123!'
 				}
 			});
 			var mailOptions = {
