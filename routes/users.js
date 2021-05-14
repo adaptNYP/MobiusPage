@@ -5,6 +5,11 @@ const passport = require('passport');
 const async = require('async');
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const fs = require('fs')
+const bodyParser = require('body-parser');
+const csv = require('csv-parser');
+const multer = require('multer');
+const upload = multer({ dest: '../public/files/CSV' });
 const { ensureAuthenticated } = require('../config/auth');
 
 // User model - ./ means go out this file and go in another so ../ means go out of file and folder and go in another folder or file etc
@@ -15,21 +20,26 @@ const DEFAULT_PASSWORD = "#P@ssw0rd&"
 // Login Page
 router.get('/login', (req, res) => res.render('login'));
 
-// // Register Page
-// router.get('/register', (req, res) => res.render('register'));
 
 // First Time Login Page
 router.get('/first_login', ensureAuthenticated, (req, res) => {
-	bcrypt.compare(DEFAULT_PASSWORD, req.user.password, (err, isMatch) => {
-		if (err) throw err;
+	// bcrypt.compare(DEFAULT_PASSWORD, req.user.password, (err, isMatch) => {
+	// 	if (err) throw err;
 
-		if (isMatch) {
-			res.render('first_login', { LoginUser: req.user, name: req.user.name });
-		} else {
-			res.redirect('/exLandingPage');
-		}
-	});
+	// 	if (isMatch) {
+	// 		res.render('first_login', { LoginUser: req.user, name: req.user.name });
+	// 	} else {
+	// 		res.redirect('/exLandingPage');
+	// 	}
+	// });
 
+	first_login = req.user.firstlogin;
+	if (first_login) {
+		res.render('first_login', { LoginUser: req.user, name: req.user.name });
+	} else {
+		req.flash('success_msg', 'Welcome back ' + req.user.name);
+		res.redirect('/exLandingPage');
+	}
 });
 
 router.post('/first_login', ensureAuthenticated, (req, res) => {
@@ -103,21 +113,21 @@ router.post('/first_login', ensureAuthenticated, (req, res) => {
 				text: 'Hello,\n\n' +
 					'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
 			};
-			smtpTransport.sendMail(mailOptions, function (err) {
-				console.log('Mail sent!');
-				req.flash('success_msg', 'Success! Your password has been changed.');
-				done(err);
-			});
+			smtpTransport.sendMail(mailOptions);
+			console.log('Mail sent!');
+
 		}
 	], function (err) {
 		res.redirect('/exLandingPage');
 	});
 
 });
+
+
 // Admin Register Page
 router.get('/register_admin', ensureAuthenticated, (req, res) => {
 	if (req.user.admin == true) {
-		res.render('register_admin', { LoginUser: req.user, name: req.user.name, email: req.user.email, school: req.user.school, admin: req.user.admin });
+		res.render('register_admin', { LoginUser: req.user, name: req.user.name });
 	}
 	else {
 		req.flash('error_msg', 'Only admins allowed. Please log in with admin account');
@@ -128,23 +138,30 @@ router.get('/register_admin', ensureAuthenticated, (req, res) => {
 router.post('/register_admin', ensureAuthenticated, async (req, res) => {
 	const { name, email, school, school_admin, admin } = req.body;
 	var is_admin = false;
-	if (admin === "admin") {
+	if (admin == "admin") {
 		is_admin = true;
 	}
 	let errors = [];
 	var school_final = req.user.school.toUpperCase();
 	var email_final = email.trim().toLowerCase();
+	console.log("Start")
+	console.log(typeof errors)
 	if (req.user.email == "mobiusnyp@gmail.com") {
-		var school_final = school_admin.toUpperCase();
-		if (school_admin == null) {
-			errors.push({ msg: 'Please fill in the user\'s school' });
+		//Cannot compare with null- Does not trigger if statement
+		if (name == '' || email == '' || school_admin == '') {
+			errors.push({ msg: 'Please fill in all fields' });
+		}
+		else {
+			var school_final = school_admin.toUpperCase();
+		}
+	}
+	else {
+		// Check required fields
+		if (name == '' || email == '') {
+			errors.push({ msg: 'Please fill in all fields' });
 		}
 	}
 
-	// Check required fields
-	if (name == null || email == null || school == null) {
-		errors.push({ msg: 'Please fill in all fields' });
-	}
 	if (errors.length > 0) {
 		res.render('register_admin', {
 			LoginUser: req.user,
@@ -158,6 +175,7 @@ router.post('/register_admin', ensureAuthenticated, async (req, res) => {
 	}
 	try {
 		user = await User.findOne({ email: email_final })
+		console.log(user)
 		if (user) {
 			errors.push({ msg: 'Email is already registered' });
 			res.render('register_admin', {
@@ -170,90 +188,207 @@ router.post('/register_admin', ensureAuthenticated, async (req, res) => {
 			});
 			return
 		}
-		var password_salt = await bcrypt.genSalt(10)
-		var hashed_password = await bcrypt.hash(DEFAULT_PASSWORD, password_salt)
+
+		var password_salt = await bcrypt.genSalt(10);
+		var password_rand = await bcrypt.genSalt(10);
+		var password_length = 12
+		var password_final = password_rand.substring(7, password_length + 7)
+		console.log(password_final);
+		var hashed_password = await bcrypt.hash(password_final, password_salt);
+
+		console.log(email_final);
+		var smtpTransport = nodemailer.createTransport({
+			service: 'gmail',
+			auth: {
+				user: 'mobiuspage@gmail.com',
+				pass: 'Mobiuspage123!'
+			}
+		});
+		var mailOptions = {
+			to: email_final,
+			from: 'mobiuspage@gmail.com',
+			subject: 'Mobius Application Account Registration',
+			text: 'Hello,\n\n' +
+				'  A new mobius account has been registered with the email: ' + email_final + '\n' +
+				'The password for the account:' + password_final + '\n'
+		};
+		smtpTransport.sendMail(mailOptions, function (err) {
+			console.log('Mail sent!');
+			req.flash('success_msg', 'Success! Your password has been changed.');
+			done(err);
+		});
+
 		var newUser = new User()
 		newUser.name = name
 		newUser.email = email_final
 		newUser.password = hashed_password
 		newUser.school = school_final
 		newUser.admin = is_admin
+		newUser.firstlogin = true
 		await newUser.save()
+
 		req.flash('success_msg', 'New user registered and can log in');
 		res.redirect('/users/register_admin');
+
 	} catch (err) {
 		console.log("[Error]", err)
 	}
+
 });
 
-// // Register Handle
-// router.post('/register', (req,res) => {
-// 	const { name, email, password, password2 } = req.body;
-// 	let errors = [];
+router.get('/csvupload', ensureAuthenticated, (req, res) => {
+	if (req.user.admin == true) {
+		res.render('register_csv', { LoginUser: req.user, name: req.user.name });
+	}
+	else {
+		req.flash('error_msg', 'Only admins allowed. Please log in with an admin account');
+		res.redirect('/exLandingPage');
+	}
+});
 
-// 	// Check required fields
-// 	if(!name || !email || !password || !password2) {
-// 			errors.push({ msg: 'Please fill in all fields' });
-// 	}
+router.post("/csvupload", upload.single("namelist"), ensureAuthenticated, function (req, res, next) {
+	let errors = [];
+	let successes = [];
+	async.waterfall([
+		function (done) {
+			var csvfile = req.file;
+			var results = [];
+			fs.createReadStream(csvfile.path)
+				.pipe(csv())
+				.on('data', (data) => results.push(data))
+				.on('end', () => {
+					console.log('CSV file successfully processed');
+					console.log(results)
+					done(null, results);
+				});
+		},
+		async function (results, done) {
+			for (var line in results) {
+				if (req.user.email == "mobiusnyp@gmail.com") {
+					if (results[line].Email == null || results[line].Name == null || results[line].School == null || results[line].Admin == null) {
+						if (results[line].Email != null) {
+							errors.push({ msg: 'At least one of the fields is missing for: ' + results[line].Email });
+						}
+						else {
+							errors.push({ msg: 'At least one of the fields is missing for: ' + results[line].Name });
+						}
+						continue;
+					}
+					var line_Admin = results[line].Admin;
+					var line_School = results[line].School;
+					if (line_Admin.toLowerCase() == 'true') {
+						line_Admin = true
+					}
+					else {
+						line_Admin = false
+					}
+				}
+				else {
+					if (results[line].Email == null || results[line].Name == null) {
+						if (results[line].Email != null) {
+							errors.push({ msg: 'At least one of the fields is missing for: ' + results[line].Email });
+						}
+						else {
+							errors.push({ msg: 'At least one of the fields is missing for: ' + results[line].Name });
+						}
+						continue;
+					}
+					var line_Admin = false;
+					var line_School = req.user.school;
+				}
+				var line_Email = results[line].Email;
+				var line_Name = results[line].Name;
 
-// 	// Check passwords match
-// 	if(password !== password2) {
-// 			errors.push({ msg: 'Passwords do not match' });
-// 	}
 
-// 	// Check pass length
-// 	if(password.length < 8) {
-// 			errors.push({ msg: 'Password should be at least 8 characters' });
-// 	}
 
-// 	if(errors.length > 0) {
-// 		res.render('register', {
-// 				errors,
-// 				name,
-// 				email,
-// 				password,
-// 				password2
-// 		});
-// 	}
-// 	else {
-// 		// Validation passed - Mongoose works like this - We create a model (e.g. user) and there's methods that can be called in that model (save, find etc)
-// 		User.findOne({ email: email })
-// 		.then(user => {
-// 				if(user) {
-// 						// User exists
-// 						errors.push({ msg: 'Email is already registered' });
-// 						res.render('register', {
-// 								errors,
-// 								name,
-// 								email,
-// 								password,
-// 								password2
-// 						});
-// 				} else {
-// 						const newUser = new User({
-// 								name,
-// 								email,
-// 								password
-// 						});
+				console.log(line_Email, line_Name, line_School, line_Admin)
+				try {
+					user = await User.findOne({ email: line_Email })
+					console.log(user);
+					if (user) {
+						var registered = String('Email ' + line_Email + ' is already registered');
+						// errorlist.push('error_msg', 'The e-mail ' + line_Email + ' has already been registered ');
+						errors.push({ msg: registered });
+						continue;
+					}
+					var password_salt = await bcrypt.genSalt(10);
+					var password_rand = await bcrypt.genSalt(10);
+					var password_length = 12
+					var password_final = password_rand.substring(7, password_length + 7)
+					console.log(password_final);
+					var hashed_password = await bcrypt.hash(password_final, password_salt);
 
-// 						// Hash Password
-// 						bcrypt.genSalt(10, (err, salt) => 
-// 								bcrypt.hash(newUser.password, salt, (err, hash) => {
-// 										if(err) throw err;
-// 										// Set password to hashed
-// 										newUser.password = hash;
-// 										// Save user
-// 										newUser.save()
-// 										.then(user => {
-// 												req.flash('success_msg', 'You are now registered and can log in');
-// 												res.redirect('/users/login');
-// 										})
-// 										.catch(err => console.log(err));
-// 						}))
-// 				}
-// 		});
-// 	}
-// });
+					var smtpTransport = nodemailer.createTransport({
+						service: 'gmail',
+						auth: {
+							user: 'mobiuspage@gmail.com',
+							pass: 'Mobiuspage123!'
+						}
+					});
+					var mailOptions = {
+						to: line_Email,
+						from: 'mobiuspage@gmail.com',
+						subject: 'Mobius Application Account Registration',
+						text: 'Hello,\n\n' +
+							'  A new mobius account has been registered with the email: ' + line_Email + '\n' +
+							'The password for the account:  ' + password_final + '\n'
+					};
+					
+
+					var newUser = new User()
+					newUser.name = line_Name;
+					newUser.email = line_Email;
+					newUser.password = hashed_password;
+					newUser.school = line_School;
+					newUser.admin = line_Admin;
+					newUser.firstlogin = true;
+					await newUser.save();
+
+					successes.push({ msg: 'Successfully registered: ' + line_Email });
+
+					smtpTransport.sendMail(mailOptions, function (err) {
+					console.log('Mail sent!');
+
+					});
+				} catch (err) {
+					console.log("[Error]", err)
+				}
+			}
+			// done(null, successes, errorlist);
+		}
+		// function(successes, errorlist, done) {
+		// 	res.render('register_csv', {
+		// 		successes,
+		// 		errorlist
+		// 	});
+		// 	callback(null, 'done');
+		// }
+	], function (err) {
+		if (err) return next(err);
+		console.log(errors)
+		console.log(successes)
+		// req.flash(errors);
+		// req.flash(successes);
+		// res.redirect("/users/csvupload")
+		res.render('register_admin', {
+			LoginUser: req.user,
+			errors,
+			successes
+		});
+		return
+	});
+});
+
+
+
+
+
+// if(req.files){
+//     console.log("Yes")
+//     console.log(req.files)
+// }
+// console.log("No")
+
 
 
 

@@ -23,6 +23,9 @@ const UserSchema = new mongoose.Schema({
         type: Boolean,
         required: true
     },
+    firstlogin: {
+        type: Boolean
+    },
     date: {
         type: Date,
         default: Date.now
