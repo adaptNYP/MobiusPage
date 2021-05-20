@@ -15,7 +15,32 @@
                         <button type="submit" class="btn btn-primary btn-block">
                             Register Users in CSV
                         </button>
-                        <br>                       
+                        <br>   
+                        <br>
+                        <p class="lead mt-4">Please format the CSV file as follows:</p>
+
+                        <table style="width: 100%;">
+                            <tr>
+                                <th>Email</th>
+                                <th>Name</th>
+                                
+                                <% if(LoginUser.email=="mobiusnyp@gmail.com" ){ %>
+                                    <th>School</th>
+                                    <th>Admin</th>
+                                <% } %>
+                            </tr>
+                            <tr>
+                                <td>...</td>
+                                <td>...</td>
+                                
+                                <% if(LoginUser.email=="mobiusnyp@gmail.com" ){ %>
+                                    <td>...</td>
+                                    <td>...</td>                                
+                                <% } %>
+                            </tr>
+                            
+
+                        </table>                    
                     
                 </form>
                 

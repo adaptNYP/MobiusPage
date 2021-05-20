@@ -84,6 +84,7 @@ router.post('/first_login', ensureAuthenticated, (req, res) => {
 							if (err) throw err;
 							// Set password to hashed
 							user.password = hash;
+							user.first_login = false
 							// Save user
 							user.save(function (err) {
 								req.logIn(user, function (err) {
@@ -115,6 +116,7 @@ router.post('/first_login', ensureAuthenticated, (req, res) => {
 			};
 			smtpTransport.sendMail(mailOptions);
 			console.log('Mail sent!');
+			res.redirect('/exLandingPage');
 
 		}
 	], function (err) {
@@ -280,7 +282,7 @@ router.post("/csvupload", upload.single("namelist"), ensureAuthenticated, functi
 						line_Admin = true
 					}
 					else {
-						line_Admin = false
+						  line_Admin = false
 					}
 				}
 				else {
