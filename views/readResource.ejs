@@ -470,7 +470,7 @@
             <div class="timeline-start">
                 <label>Start Time:</label>
                        <br />
-                <input name="startTimeInput" id="startTimeInput" type="time" value="<%= TheSelectedResource.startTime %>" readonly style="cursor: not-allowed;" />
+                <input name="startTimeInput" id="startTimeInput" type="text" value="<%= TheSelectedResource.startTime %>" readonly style="cursor: not-allowed;" />
                <!-- <input name="goTime" type="time" readonly style="cursor: not-allowed;" /> -->
            </div>
             <div class="conference-center-line"></div>
@@ -527,11 +527,7 @@
                     </div>
                     <input type="checkbox" name="myCheckEvent" style="width: 18px; height: 18px; margin-top: 100px; margin-left: 45px;">
 
-                    <button
-                        title="Use this button to delete that specific event (This event cannot be deleted as the timeline needs to have at least 1 event)"
-                        type="button" name="goRemoveEvents" class="btn clever-btn btn-2"
-                        style="display: block; margin-left: auto; margin-right: auto; margin-bottom: 50px; margin-top: 100px; cursor: not-allowed"
-                        disabled><i class="fa fa-trash" style="font-size: 18px;"></i></button>
+                    
                     <input disabled readonly title="Use this button to add an event" type="button" value="+"
                         class="btn clever-btn btn-2" name="goButton"
                         style="display: block; margin:auto; max-width: 300px; margin-top: 150px; background: #00b0bd; color: rgba(0, 0, 0, 0.50); font-size: xx-large; cursor: not-allowed;" />
@@ -539,9 +535,9 @@
                 </div>
                 <% } %>
             </div>
-            <div class="timeline-end">End Time
+            <div class="timeline-end">Total duration
                 <!-- <span class="endTime">00:00</span> -->
-                <input class="endTime" type="time" readonly style="cursor: not-allowed;"  />
+                <input class="endTime" type="text" readonly style="cursor: not-allowed;"  />
             </div>
             </section>
 

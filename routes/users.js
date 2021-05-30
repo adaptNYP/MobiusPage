@@ -251,9 +251,15 @@ router.get('/csvupload', ensureAuthenticated, (req, res) => {
 router.post("/csvupload", upload.single("namelist"), ensureAuthenticated, function (req, res, next) {
 	let errors = [];
 	let successes = [];
+	var csvfile = req.file;
+	if (csvfile == null) {
+		console.log("Inside already")
+		req.flash('error_msg', 'No File Uploaded!');
+		res.redirect('/users/csvupload');
+		return
+	}
 	async.waterfall([
 		function (done) {
-			var csvfile = req.file;
 			var results = [];
 			fs.createReadStream(csvfile.path)
 				.pipe(csv())
@@ -282,7 +288,7 @@ router.post("/csvupload", upload.single("namelist"), ensureAuthenticated, functi
 						line_Admin = true
 					}
 					else {
-						  line_Admin = false
+						line_Admin = false
 					}
 				}
 				else {
@@ -335,7 +341,7 @@ router.post("/csvupload", upload.single("namelist"), ensureAuthenticated, functi
 							'  A new mobius account has been registered with the email: ' + line_Email + '\n' +
 							'The password for the account:  ' + password_final + '\n'
 					};
-					
+
 
 					var newUser = new User()
 					newUser.name = line_Name;
@@ -349,7 +355,7 @@ router.post("/csvupload", upload.single("namelist"), ensureAuthenticated, functi
 					successes.push({ msg: 'Successfully registered: ' + line_Email });
 
 					smtpTransport.sendMail(mailOptions, function (err) {
-					console.log('Mail sent!');
+						console.log('Mail sent!');
 
 					});
 				} catch (err) {
@@ -374,6 +380,7 @@ router.post("/csvupload", upload.single("namelist"), ensureAuthenticated, functi
 		// res.redirect("/users/csvupload")
 		res.render('register_admin', {
 			LoginUser: req.user,
+			name: req.user.name,
 			errors,
 			successes
 		});
@@ -415,6 +422,7 @@ router.get('/forgot', (req, res) => {
 	res.render('forgot');
 });
 
+
 router.post('/forgot', function (req, res, next) {
 	async.waterfall([
 		function (done) {
@@ -447,8 +455,8 @@ router.post('/forgot', function (req, res, next) {
 			var smtpTransport = nodemailer.createTransport({
 				service: 'gmail',
 				auth: {
-					user: 'servertestNYP@gmail.com',
-					pass: 'Servertest123!'
+					user: 'mobiuspage@gmail.com',
+	 				pass: 'Mobiuspage123!'
 				}
 			});
 			var mailOptions = {
@@ -474,94 +482,94 @@ router.post('/forgot', function (req, res, next) {
 
 //link in email is clicked and redirected to reset password page
 router.get('/reset/:token', function (req, res) {
-	User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
-		if (!user) {
-			req.flash('error', 'Password reset token is invalid or has expired.');
-			return res.redirect('/users/forgot');
-		}
-		res.render('reset', { token: req.params.token });
+		User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
+			if (!user) {
+				req.flash('error', 'Password reset token is invalid or has expired.');
+				return res.redirect('/users/forgot');
+			}
+			res.render('reset', { token: req.params.token });
+		});
 	});
-});
 
-//Saving new password
-router.post('/reset/:token', function (req, res) {
-	async.waterfall([
-		function (done) {
-			User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
-				if (!user) {
-					req.flash('error', 'Password reset token is invalid or has expired.');
-					return res.redirect('back');
-				}
+	//Saving new password
+	router.post('/reset/:token', function (req, res) {
+		async.waterfall([
+			function (done) {
+				User.findOne({ resetPasswordToken: req.params.token, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
+					if (!user) {
+						req.flash('error', 'Password reset token is invalid or has expired.');
+						return res.redirect('back');
+					}
 
-				const { password, confirm } = req.body;
-				let errors = [];
+					const { password, confirm } = req.body;
+					let errors = [];
 
-				// Check required fields
-				if (!confirm || !password) {
-					req.flash("error", "Please fill in all fields");
-					// errors.push({ msg: 'Please fill in all fields' });
-					return res.redirect('back');
-				}
+					// Check required fields
+					if (!confirm || !password) {
+						req.flash("error", "Please fill in all fields");
+						// errors.push({ msg: 'Please fill in all fields' });
+						return res.redirect('back');
+					}
 
-				// Check pass length
-				if (password.length < 8) {
-					req.flash("error", "Password should be at least 8 characters");
-					// errors.push({ msg: 'Password should be at least 8 characters' });
-					return res.redirect('back');
+					// Check pass length
+					if (password.length < 8) {
+						req.flash("error", "Password should be at least 8 characters");
+						// errors.push({ msg: 'Password should be at least 8 characters' });
+						return res.redirect('back');
 
-				}
+					}
 
 
-				if (req.body.password !== req.body.confirm) {
-					// errors.push({ msg: 'Passwords do not match.' });
-					req.flash("error", "Passwords do not match.");
-					return res.redirect('back');
-				}
+					if (req.body.password !== req.body.confirm) {
+						// errors.push({ msg: 'Passwords do not match.' });
+						req.flash("error", "Passwords do not match.");
+						return res.redirect('back');
+					}
 
-				else {
-					bcrypt.genSalt(10, (err, salt) =>
-						bcrypt.hash(req.body.password, salt, (err, hash) => {
-							if (err) throw err;
-							// Set password to hashed
-							user.password = hash;
-							user.resetPasswordToken = undefined;
-							user.resetPasswordExpires = undefined;
-							// Save user
-							user.save(function (err) {
-								req.logIn(user, function (err) {
-									done(err, user);
+					else {
+						bcrypt.genSalt(10, (err, salt) =>
+							bcrypt.hash(req.body.password, salt, (err, hash) => {
+								if (err) throw err;
+								// Set password to hashed
+								user.password = hash;
+								user.resetPasswordToken = undefined;
+								user.resetPasswordExpires = undefined;
+								// Save user
+								user.save(function (err) {
+									req.logIn(user, function (err) {
+										done(err, user);
+									});
 								});
-							});
-						}))
-				}
-			});
-		},
-		//Upon success in changing password
-		//An email will be sent to use as a receipt
-		function (user, done) {
-			var smtpTransport = nodemailer.createTransport({
-				service: 'gmail',
-				auth: {
-					user: 'servertestNYP@gmail.com',
-					pass: 'Mobiuspage123!'
-				}
-			});
-			var mailOptions = {
-				to: user.email,
-				from: 'servertestNYP@gmail.com',
-				subject: 'Mobius Application Password Reset',
-				text: 'Hello,\n\n' +
-					'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
-			};
-			smtpTransport.sendMail(mailOptions, function (err) {
-				console.log('Mail sent!');
-				req.flash('success_msg', 'Success! Your password has been changed.');
-				done(err);
-			});
-		}
-	], function (err) {
-		res.redirect('/exLandingPage');
+							}))
+					}
+				});
+			},
+			//Upon success in changing password
+			//An email will be sent to use as a receipt
+			function (user, done) {
+				var smtpTransport = nodemailer.createTransport({
+					service: 'gmail',
+					auth: {
+						user: 'servertestNYP@gmail.com',
+						pass: 'Mobiuspage123!'
+					}
+				});
+				var mailOptions = {
+					to: user.email,
+					from: 'servertestNYP@gmail.com',
+					subject: 'Mobius Application Password Reset',
+					text: 'Hello,\n\n' +
+						'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
+				};
+				smtpTransport.sendMail(mailOptions, function (err) {
+					console.log('Mail sent!');
+					req.flash('success_msg', 'Success! Your password has been changed.');
+					done(err);
+				});
+			}
+		], function (err) {
+			res.redirect('/exLandingPage');
+		});
 	});
-});
 
-module.exports = router;
+	module.exports = router;

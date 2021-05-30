@@ -16,26 +16,34 @@
                             Register Users in CSV
                         </button>
                         <br>   
-                        <br>
                         <p class="lead mt-4">Please format the CSV file as follows:</p>
 
-                        <table style="width: 100%;">
-                            <tr>
-                                <th>Email</th>
-                                <th>Name</th>
+                        <table style="width: 100%; border: 1px solid black; border-collapse: collapse; text-align: center;">
+                            <tr style="border: 1px solid black;">
+                                <th style="border: 1px solid black;">Email</th>
+                                <th style="border: 1px solid black;">Name</th>
                                 
                                 <% if(LoginUser.email=="mobiusnyp@gmail.com" ){ %>
-                                    <th>School</th>
-                                    <th>Admin</th>
+                                    <th style="border: 1px solid black;">School</th>
+                                    <th style="border: 1px solid black;">Admin</th>
                                 <% } %>
                             </tr>
-                            <tr>
+                            <tr style="border: 1px solid black;">
                                 <td>...</td>
                                 <td>...</td>
                                 
                                 <% if(LoginUser.email=="mobiusnyp@gmail.com" ){ %>
                                     <td>...</td>
-                                    <td>...</td>                                
+                                    <td>True</td>                                
+                                <% } %>
+                            </tr>
+                            <tr style="border: 1px solid black;">
+                                <td>...</td>
+                                <td>...</td>
+                                
+                                <% if(LoginUser.email=="mobiusnyp@gmail.com" ){ %>
+                                    <td>...</td>
+                                    <td>False</td>                                
                                 <% } %>
                             </tr>
                             

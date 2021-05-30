@@ -858,72 +858,68 @@
             <div class="timeline-start">
                 <label>Start Time:</label>
                 <br />
-                <input name="startTimeInput" id="startTimeInput" type="time"  /></div>
+                <input name="startTimeInput" id="startTimeInput" type="text" value="00:00" readonly />
+            </div>
             <div class="conference-center-line"></div>
             <div class="conference-timeline-content" id="containerBox">
                 <div class="timeline-article">
                     <div class="content-left-container">
-                        <div class="content-left"
-                            style="background-color: #8080ff">
-                            <input name='headerForEventName' placeholder="Title..." class="headerForEvent"
-                                value="">
-                            <textarea contenteditable="true" style="height: 400px"
-                                name="textAreasForEvents"></textarea>
+                        <div class="content-left" style="background-color: #8080ff">
+                            <input name='headerForEventName' placeholder="Title..." class="headerForEvent" value="">
+                            <textarea contenteditable="true" style="height: 400px" name="textAreasForEvents"></textarea>
                             <input title="Use this button to change the color of the note" type='color'
-                                name="colorPickerForEvent"
-                                value="#8080ff" />
+                                name="colorPickerForEvent" value="#8080ff" />
                             <label style="font-size: small;">Last Modified By:</label>
                             <input readonly class="labelSetForLastModified" name="labelSetForLastModified" value="">
                         </div>
 
                         <label>Duration:</label><br />
-                        <input  type="number" name="goDuration"
-                            style="width: 50px" min="0" max="23" />&nbsp<label>hour(s)</label>&nbsp<input
-                             type="number" name="goMinutes"
-                            style="width: 50px" min="0" max="59" />&nbsp<label>minute(s)</label>
+                        <input type="number" name="goDuration" style="width: 50px" min="0" max="23"
+                            value=0 />&nbsp<label>hour(s)</label>&nbsp<input type="number" name="goMinutes"
+                            style="width: 50px" min="0" max="59" value=0 />&nbsp<label>minute(s)</label>&nbsp
+                        <button
+                            title="Use this button to delete that specific event (This event cannot be deleted as the timeline needs to have at least 1 event)"
+                            type="button" name="goRemoveEvents" class="btn clever-btn btn-2" data-toggle="modal"
+                            data-target="#exampleModal"><i class="fa fa-trash" style="font-size: 18px; color: black;"></i></button>
                         <br />
                         <label hidden>Start Time:</label>
                         <br />
-                        <input name="goTime" type="time" hidden/>
-
+                        <input name="goTime" type="time" hidden />
                     </div>
                     <div class="content-right-container">
-                        <div class="content-right"
-                            style="background-color: #80ff00">
+                        <div class="content-right" style="background-color: #80ff00">
                             <!-- <h4 contenteditable="true" id="uniqueheaderForEvent2" class="headerForEvent"
                                     data-placeholder="Title..."></h4> -->
-                            <input name='headerForEventName' placeholder="Title..." class="headerForEvent"
-                                value="">
-                            <textarea style="height: 400px"
-                                name="textAreasForEvents"></textarea>
+                            <input name='headerForEventName' placeholder="Title..." class="headerForEvent" value="">
+                            <textarea style="height: 400px" name="textAreasForEvents"></textarea>
 
                             <input title="Use this button to change the color of the note" type='color'
-                                name="colorPickerForEvent"
-                                value="#80ff00" />
+                                name="colorPickerForEvent" value="#80ff00" />
                             <label style="font-size: small;">Last Modified By:</label>
                             <input readonly class="labelSetForLastModified" name="labelSetForLastModified" value="">
                         </div>
                     </div>
                     <div class="meta-date">
                         <span class="date">00:00</span>
-                        <input name="middleTimeHidden" value="00:00" hidden/>
+                        <input name="middleTimeHidden" value="00:00" hidden />
                     </div>
 
-                    <button type="button" class="btn btn-info" name="moveUpBtnTL" style="display: block; margin-left: auto; margin-right: auto; margin-bottom: 10px; margin-top: 150px;"><i class="fa fa-arrow-up" aria-hidden="true"></i></button>
-                    <button type="button" class="btn btn-info" name="moveDownBtnTL" style="display: block; margin-left: auto; margin-right: auto; margin-bottom: 10px;"><i class="fa fa-arrow-down" aria-hidden="true"></i></button>
+                    <button type="button" class="btn btn-info" name="moveUpBtnTL"
+                        style="display: block; margin-left: auto; margin-right: auto; margin-bottom: 10px; margin-top: 150px;"><i
+                            class="fa fa-arrow-up" aria-hidden="true"></i></button>
+                    <button type="button" class="btn btn-info" name="moveDownBtnTL"
+                        style="display: block; margin-left: auto; margin-right: auto; margin-bottom: 10px;"><i
+                            class="fa fa-arrow-down" aria-hidden="true"></i></button>
 
-                    <button
-                        title="Use this button to delete that specific event (This event cannot be deleted as the timeline needs to have at least 1 event)"
-                        type="button" name="goRemoveEvents" class="btn clever-btn btn-2" data-toggle="modal" data-target="#exampleModal"
-                        style="display: block; margin-left: auto; margin-right: auto; margin-bottom: 10px; margin-top: 100px;"><i class="fa fa-trash" style="font-size: 18px;"></i></button>
+
                     <input title="Use this button to add an event" type="button" value="+" class="btn clever-btn btn-2"
                         name="goButton"
                         style="display: block; margin:auto; max-width: 300px; margin-top: 110px; background: #00b0bd; color: rgba(0, 0, 0, 0.50); font-size: xx-large;" />
 
                 </div>
             </div>
-            <div class="timeline-end">End Time
-                <input class="endTime" type="time" readonly style="cursor: not-allowed;"  />
+            <div class="timeline-end">Total Duration
+                <input class="endTime" type="text" readonly style="cursor: not-allowed;" />
             </div>
         </section>
         <!-- // Vertical Timeline -->
@@ -1788,8 +1784,7 @@ var insidescript = document.createTextNode("tinymce.init({selector: 'textarea:no
                     var idOfTheEventToDelete = this.id;
                     var noFromIdOfTheEventToDelete = idOfTheEventToDelete.substring(11, idOfTheEventToDelete.length);
                     var whereToInsertAfter = document.getElementById("eventSet" + noFromIdOfTheEventToDelete);
-                    $("<div class='timeline-article' id='eventSet" + counter + "'><div class='content-left-container'><div class='content-left' style='background-color: #8080ff' id='divForCPE" + counterColorForEvent + "'><input name='headerForEventName' placeholder='Title...' id='uniqueheaderForEvent" + counterColorForEvent + "' class='headerForEvent' style='background-color: white'><textarea id='textAreaSet" + counterColorForEvent + "' name='textAreasForEvents' style='height: 400px' class='taclass' contenteditable='true'></textarea><input title='Use this button to change the color of the note' type='color' value='#8080ff' name='colorPickerForEvent' id='colorForEvent" + counterColorForEvent + "' /><label style='font-size: small;'>Last Modified By:</label><input readonly class='labelSetForLastModified' name='labelSetForLastModified' id='lastModifiedBySet" + counterColorForEvent + "'></div><label>Duration:</label><br /><input type='number' min='0' max='23' name='goDuration' style='width: 50px' id='addDurationInput" + counter + "' />&nbsp<label>hour(s)</label>&nbsp<input type='number' min='0' max='59' name='goMinutes' style='width: 50px' id='addMinutesInput" + counter + "' />&nbsp<label>minute(s)</label><br /><label hidden>Start Time:</label><br /><input name='goTime' type='time' id='inputForStartTime" + counter + "' hidden /></div><div class='content-right-container'><div class='content-right' style='background-color: #80ff00' id='divForCPE" + secondCounterColorForEvent + "'><input name='headerForEventName' placeholder='Title...' id='uniqueheaderForEvent" + secondCounterColorForEvent + "' class='headerForEvent' style='background-color: white'><textarea id='textAreaSet" + secondCounterColorForEvent + "' name='textAreasForEvents' style='height: 400px' class='taclass' contenteditable='true'></textarea><input title='Use this button to change the color of the note' type='color' value='#80ff00' name='colorPickerForEvent' id='colorForEvent" + secondCounterColorForEvent + "'/><label style='font-size: small;'>Last Modified by:</label><input readonly id='lastModifiedBySet" + secondCounterColorForEvent + "' class='labelSetForLastModified' name='labelSetForLastModified'></div></div><div class='meta-date'><span class='date' id='circleForEvent" + counter + "'></span><input name='middleTimeHidden' id='middleTimeHidden" + counter + "' value='00:00' hidden/></div><button type='button' id='moveUpBtnTL" + counter + "' class='btn btn-info' name='moveUpBtnTL' style='display: block; margin-left: auto; margin-right: auto; margin-bottom: 10px; margin-top: 150px;'><i class='fa fa-arrow-up' aria-hidden='true'></i></button><button type='button' id='moveDownBtnTL" + counter + "' class='btn btn-info' name='moveDownBtnTL' style='display: block; margin-left: auto; margin-right: auto; margin-bottom: 10px;'><i class='fa fa-arrow-down' aria-hidden='true'></i></button><button title='Use this button to delete this event' type='button' name='goRemoveEvents' id='removeEventBtn" + counter + "' class='btn clever-btn btn-2' style='display: block; margin-left: auto; margin-right: auto; margin-bottom: 10px; margin-top: 100px;'><i class='fa fa-trash' style='font-size: 18px'></i></button><input type='button' value='+' class='btn clever-btn btn-2' name='goButton' title='Use this button to add an event' style='display: block; margin: auto; max-width: 300px; margin-top: 110px; background: #00b0bd; color: rgba(0, 0, 0, 0.50); font-size:xx-large' id='addEventBtn" + counter + "' /></div>").insertAfter(whereToInsertAfter);
-
+                $("<div class='timeline-article' id='eventSet" + counter + "'><div class='content-left-container'><div class='content-left' style='background-color: #8080ff' id='divForCPE" + counterColorForEvent + "'><input name='headerForEventName' placeholder='Title...' id='uniqueheaderForEvent" + counterColorForEvent + "' class='headerForEvent' style='background-color: white'><textarea id='textAreaSet" + counterColorForEvent + "' name='textAreasForEvents' style='height: 400px' class='taclass' contenteditable='true'></textarea><input title='Use this button to change the color of the note' type='color' value='#8080ff' name='colorPickerForEvent' id='colorForEvent" + counterColorForEvent + "' /><label style='font-size: small;'>Last Modified By:</label><input readonly class='labelSetForLastModified' name='labelSetForLastModified' id='lastModifiedBySet" + counterColorForEvent + "'></div><label>Duration:</label><br /><input type='number' min='0' max='23' value='0' name='goDuration' style='width: 50px' id='addDurationInput" + counter + "' />&nbsp<label>hour(s)</label>&nbsp<input type='number' min='0' max='59' value='0' name='goMinutes' style='width: 50px' id='addMinutesInput" + counter + "' />&nbsp<label>minute(s)</label></button>&nbsp<button title='Use this button to delete this event' type='button' name='goRemoveEvents' id='removeEventBtn" + counter + "' class='btn clever-btn btn-2'><i class='fa fa-trash' style='font-size: 18px'></i></button><br /><label hidden>Start Time:</label><br /><input name='goTime' type='time' id='inputForStartTime" + counter + "' hidden /></div><div class='content-right-container'><div class='content-right' style='background-color: #80ff00' id='divForCPE" + secondCounterColorForEvent + "'><input name='headerForEventName' placeholder='Title...' id='uniqueheaderForEvent" + secondCounterColorForEvent + "' class='headerForEvent' style='background-color: white'><textarea id='textAreaSet" + secondCounterColorForEvent + "' name='textAreasForEvents' style='height: 400px' class='taclass' contenteditable='true'></textarea><input title='Use this button to change the color of the note' type='color' value='#80ff00' name='colorPickerForEvent' id='colorForEvent" + secondCounterColorForEvent + "'/><label style='font-size: small;'>Last Modified by:</label><input readonly id='lastModifiedBySet" + secondCounterColorForEvent + "' class='labelSetForLastModified' name='labelSetForLastModified'></div></div><div class='meta-date'><span class='date' id='circleForEvent" + counter + "'></span><input name='middleTimeHidden' id='middleTimeHidden" + counter + "' value='00:00' hidden/></div><button type='button' id='moveUpBtnTL" + counter + "' class='btn btn-info' name='moveUpBtnTL' style='display: block; margin-left: auto; margin-right: auto; margin-bottom: 10px; margin-top: 150px;'><i class='fa fa-arrow-up' aria-hidden='true'></i></button><button type='button' id='moveDownBtnTL" + counter + "' class='btn btn-info' name='moveDownBtnTL' style='display: block; margin-left: auto; margin-right: auto; margin-bottom: 10px;'><i class='fa fa-arrow-down' aria-hidden='true'></i></button><input type='button' value='+' class='btn clever-btn btn-2' name='goButton' title='Use this button to add an event' style='display: block; margin: auto; max-width: 300px; margin-top: 110px; background: #00b0bd; color: rgba(0, 0, 0, 0.50); font-size:xx-large' id='addEventBtn" + counter + "' /></div>").insertAfter(whereToInsertAfter);
                     checkeverytime();
                     var newscript = document.createElement('script');
                     var insidescript = document.createTextNode("tinymce.init({selector: 'textarea:not(.commentsInput)', init_instance_callback: function(editor) {editor.on('keyup', function(e) {console.log(editor.id + ' was edited' ); var theEditorId = editor.id; if(theEditorId.includes('Set')) {var justTheNumberFromSet = theEditorId.substring(11, theEditorId.length); var lastModifiedByLabel = 'lastModifiedBySet' + justTheNumberFromSet; document.getElementById(lastModifiedByLabel).value = document.getElementById('userNameHere').innerText;} else {var justTheNumber = theEditorId.substring(8, theEditorId.length); var noteLastModifiedLabel = 'lastModifiedBy' + justTheNumber; document.getElementById(noteLastModifiedLabel).value = document.getElementById('userNameHere').innerText;} });}, content_css: '//www.tiny.cloud/css/codepen.min.css', plugins: 'print preview searchreplace autolink autosave save directionality visualblocks visualchars fullscreen image link media template codesample table charmap hr pagebreak nonbreaking anchor toc insertdatetime advlist lists wordcount imagetools textpattern noneditable help charmap emoticons', toolbar: 'undo redo | bold italic underline strikethrough | fontselect fontsizeselect formatselect | alignleft aligncenter alignright alignjustify | outdent indent |  numlist bullist | forecolor backcolor removeformat | pagebreak | charmap emoticons | fullscreen  preview save print | insertfile image media template link anchor codesample | a11ycheck ltr rtl | showcomments addcomment', image_title: true, automatic_uploads: true, file_picker_types: 'image', file_picker_callback: function (cb, value, meta) {var input = document.createElement('input'); input.setAttribute('type', 'file'); input.setAttribute('accept', 'image/*'); input.onchange = function () { var file = this.files[0]; var reader = new FileReader(); reader.onload = function () { var id = 'blobid' + (new Date()).getTime(); var base64 = reader.result.split(',')[1]; var blobInfo = blobCache.create(id, file, base64); blobCache.add(blobInfo); cb(blobInfo.blobUri(), { title: file.name }); }; reader.readAsDataURL(file); }; input.click();}});");
